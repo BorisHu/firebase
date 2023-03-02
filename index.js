@@ -30,15 +30,15 @@ const app = initializeApp(firebaseConfig);
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
 let messages = [];
-const messagesRef = collection(db, "messages");
+const messagesRef = collection(db, "score");
 
 async function sendMessage(message) {
-console.log("Sending a message!");
+console.log("Sending a score!");
 // Add some data to the messages collection
 try {
-    const docRef = await addDoc(collection(db, "messages"), {
+    const docRef = await addDoc(collection(db, "score"), {
     time: Date.now(),
-    content: message,
+    content: Number(message),
     });
     console.log("Document written with ID: ", docRef.id);
 } catch (e) {
@@ -50,7 +50,7 @@ try {
     messages = [];
   
     const querySnapshot = await getDocs(
-      query(messagesRef, orderBy("time", "desc"))
+      query(messagesRef, orderBy("content", "desc"))
     );
     querySnapshot.forEach((doc) => {
       let msgData = doc.data();
@@ -79,7 +79,7 @@ try {
   }
 
   onSnapshot(
-    collection(db, "messages"),
+    collection(db, "score"),
     (snapshot) => {
       console.log("snap", snapshot);
       getAllMessages();
