@@ -16,6 +16,7 @@ import {
     onSnapshot,
     query,
     orderBy,
+    doc,
   } from "firebase/firestore";
 import { html, render } from "lit-html";
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -40,13 +41,13 @@ const db = getFirestore(app);
 let messages = [];
 const messagesRef = collection(db, "score");
 const auth = getAuth();
-let username = "anon";
+var username = "anonymous";
 
 function signInAnon() {
   signInAnonymously(auth)
     .then(() => {
-      updateProfile(auth.currentUser, { displayName: username })
       console.log(auth.currentUser);
+      updateProfile(auth.currentUser, { displayName: username })
     })
     .catch((error) => {
       console.error(`Error ${error.code}: ${error.message}.`);
@@ -57,6 +58,7 @@ function signInAnon() {
 function signOutUser() {
   signOut(auth)
     .then(() => {
+      username = "anon";
       console.info("Sign out was successful");
     })
     .catch((error) => {
@@ -85,7 +87,7 @@ const user = auth.currentUser;
 // Add some data to the messages collection
 try {
     const docRef = await addDoc(collection(db, "score"), {
-    displayName: user.isAnonymous ? "anon" : user.displayName,
+    displayName: user.displayName,
     uid: user.uid,
     content: Number(message),
     });
@@ -93,6 +95,49 @@ try {
 } catch (e) {
     console.error("Error adding document: ", e);
 }
+}
+
+function handleInput(e) {
+  if (e.key == "Enter") {
+    sendMessage(e.target.value);
+    e.target.value = "";
+  }
+}
+
+
+function updateValue(event) {
+  username = event.target.value;
+}
+
+function signInView() {
+  return html`
+  <h3>Enter User name:</h3>
+  <input type="text" id="inputValue" @input=${updateValue}>
+  <button class="sign-in" @click=${signInAnon}>Sign in</button>
+  <h3>Or:</h3>
+  <button class="sign-in" @click=${signInAnon}>Anonymous Sign in</button>`;
+}
+
+function view() {
+  let user = auth.currentUser;
+  return html`
+  <h1>Game</h1>
+  <div id="top-bar">
+  <span
+    >Signed in as
+    ${user.isAnonymous ? username : auth.currentUser.displayName}</span
+  >
+  <button @click=${signOutUser}>Sign Out</button>
+</div>
+    <input type="text" @keydown=${handleInput} />
+    <div id="rank">
+    <div class="row">
+      ${messages.map((msg) => html`<div class="message">${msg.displayName}</div>`)}
+    </div>
+    <div class="row">
+      ${messages.map((msg) => html`<div class="message">${msg.content}</div>`)}
+    </div>
+    </div>`;
 }
 
 async function getAllMessages() {
@@ -108,41 +153,6 @@ async function getAllMessages() {
 
   console.log(messages);
   render(view(), document.body);
-}
-
-
-function handleInput(e) {
-  if (e.key == "Enter") {
-    sendMessage(e.target.value);
-    e.target.value = "";
-  }
-}
-
-function signInView() {
-  return html`
-  <h3>Enter User name:</h3>
-  <input type="text" id="newUserName"><br>`;
-  document.getElementById("newUserName").value = username;`
-  <button class="sign-in" @click=${signInAnon}>Sign in</button>
-  <h3>Or:</h3>
-  <button class="sign-in" @click=${signInAnon}>Anonymous Sign in</button>`;
-}
-
-function view() {
-  let user = auth.currentUser;
-  return html`
-  <h1>Game</h1>
-  <div id="top-bar">
-  <span
-    >Signed in as
-    ${user.isAnonymous ? "anon" : auth.currentUser.displayName}</span
-  >
-  <button @click=${signOutUser}>Sign Out</button>
-</div>
-    <input type="text" @keydown=${handleInput} />
-    <div id="messages-container">
-      ${messages.map((msg) => html`<div class="message">${msg.displayName,msg.content}</div>`)}
-    </div>`;
 }
 
 onSnapshot(

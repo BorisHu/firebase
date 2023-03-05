@@ -5,3 +5,12 @@
   body {
     margin: 0;
   }
+
+  #rank {
+    display: flex;
+  }
+
+  .row {
+    width: auto;
+    padding-right: 10px;
+  }
