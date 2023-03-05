@@ -121,7 +121,8 @@ function handleInput(e) {
 function signInView() {
   return html`
   <h3>Enter User name:</h3>
-  <input type="text" @keydown=${handleInput} />
+  <input type="text" id="newUserName"><br>`;
+  document.getElementById("newUserName").value = username;`
   <button class="sign-in" @click=${signInAnon}>Sign in</button>
   <h3>Or:</h3>
   <button class="sign-in" @click=${signInAnon}>Anonymous Sign in</button>`;
