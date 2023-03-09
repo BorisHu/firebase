@@ -7,7 +7,6 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-
 import {
     getFirestore,
     collection,
@@ -19,7 +18,6 @@ import {
     doc,
   } from "firebase/firestore";
 import { html, render } from "lit-html";
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -96,6 +94,8 @@ try {
     console.error("Error adding document: ", e);
 }
 }
+
+window.sendMessage = sendMessage
 
 function handleInput(e) {
   if (e.key == "Enter") {
